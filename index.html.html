@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For You — I'm Sorry</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Dancing+Script:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --cream: #fdf0e0;
+      --gold: #d4a053;
+      --dark: #1a0610;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--dark);
+      font-family: 'Cormorant Garamond', serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle film grain */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      opacity: .3;
+    }
+
+    /* ══ SCENES ══ */
+    .scene {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.8s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .scene.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ══ SCENE 1 — INTRO ══ */
+    #s1 {
+      background:
+        radial-gradient(ellipse at 30% 60%, rgba(192, 67, 90, .3) 0%, transparent 55%),
+        radial-gradient(ellipse at 76% 25%, rgba(212, 160, 83, .22) 0%, transparent 50%),
+        linear-gradient(160deg, #1a0610 0%, #2a0d1a 40%, #1c0c20 70%, #11060f 100%);
+    }
+
+    .particle-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .part {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(242, 167, 184, .7), transparent 70%);
+      animation: partFloat var(--pd) ease-in-out infinite var(--delay);
+    }
+
+    @keyframes partFloat {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: var(--bo);
+      }
+
+      50% {
+        transform: translateY(var(--ty)) scale(1.2);
+        opacity: var(--po);
+      }
+    }
+
+    .intro-wrap {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 26px;
+      text-align: center;
+      padding: 40px;
+      max-width: 700px;
+    }
+
+    .intro-tagline {
+      font-size: clamp(.9rem, .8rem + 1.2vw, 1.2rem);
+      font-weight: 300;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: rgba(242, 167, 184, .55);
+      animation: fadeUp 2s ease .4s both;
+    }
+
+    .intro-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3.2vw, 2.8rem);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--cream);
+      line-height: 1.5;
+      text-shadow: 0 0 60px rgba(212, 160, 83, .4), 0 2px 10px rgba(0, 0, 0, .6);
+      animation: fadeUp 2.2s ease 1.3s both;
+    }
+
+    .intro-sub {
+      font-size: clamp(.95rem, .85rem + .8vw, 1.15rem);
+      font-style: italic;
+      color: rgb(255, 255, 255);
+      line-height: 1.8;
+      animation: fadeUp 2s ease 2.3s both;
+    }
+
+    .intro-cta {
+      margin-top: 10px;
+      font-size: .78rem;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: rgba(227, 197, 25, 0.5);
+      animation: pulse 2.5s ease-in-out infinite, fadeUp 1.5s ease 3.8s both;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      transition: color .3s;
+    }
+
+    .intro-cta:hover {
+      color: rgba(213, 146, 45, 0.95);
+    }
+
+    /* Glow orbs */
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: orbDrift var(--od) ease-in-out infinite var(--ode);
+    }
+
+    @keyframes orbDrift {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      40% {
+        transform: translate(var(--ox1), var(--oy1)) scale(1.08);
+      }
+
+      70% {
+        transform: translate(var(--ox2), var(--oy2)) scale(.93);
+      }
+    }
+
+    /* ══ SCENE 2 — GIFT BOX ══ */
+    #s2 {
+      background:
+        radial-gradient(ellipse at 50% 90%, rgba(192, 67, 90, .22) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 5%, rgba(212, 160, 83, .14) 0%, transparent 55%),
+        linear-gradient(180deg, #120717 0%, #1e0b19 50%, #0d0410 100%);
+    }
+
+    .gift-scene-wrap {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .gift-hint-top {
+      font-size: clamp(.9rem, .8rem + .7vw, 1.1rem);
+      font-style: italic;
+      color: rgba(253, 240, 224, .5);
+      text-align: center;
+      animation: fadeUp 1.5s ease both;
+    }
+
+    /* 3D CSS gift box */
+    .gift-outer {
+      position: relative;
+      cursor: pointer;
+      animation: breathe 3.2s ease-in-out infinite;
+      perspective: 900px;
+    }
+
+    @keyframes breathe {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-9px) scale(1.02);
+      }
+    }
+
+    .gift-box {
+      position: relative;
+      width: 170px;
+      height: 160px;
+    }
+
+    .box-body {
+      position: absolute;
+      bottom: 0;
+      width: 170px;
+      height: 118px;
+      background: linear-gradient(148deg, #c0435a 0%, #8c1e3a 55%, #6a1528 100%);
+      border-radius: 6px 6px 8px 8px;
+      box-shadow:
+        inset 0 2px 12px rgba(255, 255, 255, .14),
+        inset 0 -5px 12px rgba(0, 0, 0, .32),
+        0 22px 55px rgba(0, 0, 0, .65),
+        0 0 45px rgba(192, 67, 90, .28);
+    }
+
+    .box-body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, .07) 50%, transparent 100%);
+    }
+
+    .box-ribbon-v {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 118px;
+      background: linear-gradient(90deg, #a07020 0%, #eebb50 45%, #c89030 55%, #806010 100%);
+      border-radius: 3px;
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, .18);
+      z-index: 2;
+    }
+
+    .box-lid {
+      position: absolute;
+      top: 0;
+      width: 180px;
+      height: 50px;
+      left: -5px;
+      background: linear-gradient(138deg, #d85070 0%, #a02840 55%, #7a1830 100%);
+      border-radius: 8px 8px 4px 4px;
+      box-shadow: inset 0 2px 10px rgba(255, 255, 255, .17), 0 5px 22px rgba(0, 0, 0, .55);
+      transform-origin: top center;
+      transition: transform 1.3s cubic-bezier(.25, .46, .45, .94);
+      z-index: 5;
+    }
+
+    .box-lid.open {
+      transform: perspective(700px) rotateX(-145deg);
+    }
+
+    .box-ribbon-h {
+      position: absolute;
+      top: 50%;
+      left: -5px;
+      transform: translateY(-50%);
+      width: 180px;
+      height: 24px;
+      background: linear-gradient(180deg, #a07020 0%, #eebb50 45%, #c89030 55%, #806010 100%);
+      border-radius: 3px;
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, .18);
+      z-index: 6;
+    }
+
+    .bow {
+      position: absolute;
+      top: -26px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 62px;
+      height: 32px;
+      z-index: 7;
+      transition: transform .9s ease, opacity .5s ease;
+    }
+
+    .bow.open {
+      transform: translateX(-50%) scale(0) rotate(25deg);
+      opacity: 0;
+    }
+
+    .bow-left,
+    .bow-right {
+      position: absolute;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50% 0 50% 0;
+      background: linear-gradient(135deg, #eebb50 0%, #c89030 55%, #907010 100%);
+      box-shadow: inset 0 2px 8px rgba(255, 255, 255, .28), 0 4px 10px rgba(0, 0, 0, .45);
+    }
+
+    .bow-left {
+      left: 0;
+      transform: rotate(-30deg);
+    }
+
+    .bow-right {
+      right: 0;
+      transform: rotate(30deg) scaleX(-1);
+    }
+
+    .bow-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fff5c0 0%, #eebb50 55%, #906010 100%);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .55);
+      z-index: 2;
+    }
+
+    .box-glow {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 148px;
+      height: 108px;
+      background: radial-gradient(ellipse at 50% 100%, rgba(255, 220, 120, 0) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 4;
+      transition: background 1.6s ease, filter 1.6s ease;
+    }
+
+    .box-glow.lit {
+      background: radial-gradient(ellipse at 50% 80%, rgba(255, 220, 80, .75) 0%, rgba(255, 160, 40, .45) 40%, transparent 75%);
+      filter: blur(10px);
+    }
+
+    .gift-hint-bottom {
+      font-size: .78rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(212, 160, 83, .42);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    /* shimmer stars */
+    .shimmer-star {
+      position: fixed;
+      pointer-events: none;
+      z-index: 500;
+      font-size: var(--ss-size);
+      animation: shimmerBurst var(--ss-dur) ease-out both;
+    }
+
+    @keyframes shimmerBurst {
+      0% {
+        transform: translate(0, 0) scale(0);
+        opacity: 1;
+      }
+
+      75% {
+        opacity: .75;
+      }
+
+      100% {
+        transform: translate(var(--ssx), var(--ssy)) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* ══ SCENE 3 — CHOCOLATES ══ */
+    #s3 {
+      background: radial-gradient(ellipse at 50% 50%, #1a0a05 0%, #0a0403 100%);
+    }
+
+    .choc-scene-wrap {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .choc-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.05rem, .9rem + 1vw, 1.45rem);
+      font-style: italic;
+      color: var(--cream);
+      text-shadow: 0 0 35px rgb(254, 254, 254);
+      text-align: center;
+      animation: fadeUp 1.5s ease both;
+    }
+
+    /* Photorealistic chocolate image container */
+    .choc-photo-frame {
+      position: relative;
+      width: min(450px, 92vw);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow:
+        0 32px 80px rgba(0, 0, 0, .8),
+        0 0 50px rgba(120, 60, 20, .2),
+        inset 0 1px 0 rgba(255, 200, 100, .12);
+    }
+
+    .choc-photo-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      background:
+        linear-gradient(to right, rgba(0, 0, 0, .12) 0%, transparent 6%, transparent 94%, rgba(0, 0, 0, .12) 100%),
+        linear-gradient(to bottom, rgba(0, 0, 0, .08) 0%, transparent 8%);
+    }
+
+    .choc-bg-img {
+      display: block;
+      width: 100%;
+      height: auto;
+      filter: brightness(1.05) contrast(1.04) saturate(1.08);
+      user-select: none;
+    }
+
+    /* Click zones — each cell is clickable */
+    .choc-zones {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .choc-zone {
+      position: relative;
+      cursor: pointer;
+      transition: filter .18s ease;
+    }
+
+    .choc-zone:not(.eaten):hover {
+      filter: brightness(1.22) saturate(1.15) drop-shadow(0 0 12px rgba(255, 220, 100, .55));
+    }
+
+    /* The black empty-slot cover — hidden by default */
+    .choc-cover {
+      position: absolute;
+      inset: 0;
+      /* Solid black to match an empty wooden box compartment */
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      /* Slight inset so the wooden dividers stay visible around the edge */
+      margin: 4px;
+      border-radius: 3px;
+    }
+
+    /* When eaten: chocolate image fades/lifts out, then black slot fades in */
+    .choc-zone.eaten {
+      pointer-events: none;
+      cursor: default;
+      animation: chocLift .55s cubic-bezier(.4, 0, .6, 1) forwards;
+    }
+
+    .choc-zone.eaten .choc-cover {
+      animation: slotReveal .55s cubic-bezier(.4, 0, .6, 1) forwards;
+    }
+
+    /* Chocolate briefly scales up (being picked up) then disappears */
+    @keyframes chocLift {
+      0% {
+        transform: scale(1);
+        filter: brightness(1);
+        opacity: 1;
+      }
+
+      35% {
+        transform: scale(1.08);
+        filter: brightness(1.3);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1.1);
+        filter: brightness(1.5);
+        opacity: 0;
+      }
+    }
+
+    /* Black slot fades in cleanly after chocolate lifts */
+    @keyframes slotReveal {
+      0% {
+        opacity: 0;
+      }
+
+      40% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .choc-remaining {
+      font-size: .78rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgb(255, 255, 255);
+      text-align: center;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    .choc-msg-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .choc-msg {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.05rem, .85rem + 1.5vw, 1.65rem);
+      font-style: italic;
+      color: var(--cream);
+      text-align: center;
+      max-width: 500px;
+      padding: 0 30px;
+      text-shadow:
+        0 0 40px rgba(228, 146, 24, 0.75),
+        0 0 80px rgba(243, 146, 2, 0.851),
+        0 2px 10px rgba(0, 0, 0, .8);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+
+    .choc-msg.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ══ SCENE 4 — BOUQUET ══ */
+    #s4 {
+      background: #000;
+      overflow: hidden;
+    }
+
+    .bouquet-wrap {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+    }
+
+    .bouquet-photo-wrap {
+      position: relative;
+      animation: bouquetSway 5s ease-in-out infinite;
+      transition: transform .4s ease;
+    }
+
+    .bouquet-photo-wrap:hover {
+      transform: scale(1.04) rotate(.5deg) translateY(-4px);
+    }
+
+    @keyframes bouquetSway {
+
+      0%,
+      100% {
+        transform: rotate(-1.5deg) translateY(0);
+      }
+
+      50% {
+        transform: rotate(1.5deg) translateY(-10px);
+      }
+    }
+
+    .bouquet-img {
+      display: block;
+      /* Larger: fills more of the viewport */
+      width: min(520px, 92vw);
+      height: auto;
+      /* mix-blend-mode multiply makes white bg vanish against dark scene */
+      mix-blend-mode: multiply;
+      filter: brightness(1.05) contrast(1.06) saturate(1.1);
+    }
+
+    .bouquet-msg {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1rem, .88rem + .9vw, 1.38rem);
+      font-style: italic;
+      color: var(--cream);
+      text-align: center;
+      max-width: 400px;
+      text-shadow: 0 0 35px rgba(255, 210, 80, .55), 0 2px 8px rgba(0, 0, 0, .7);
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 1s ease, transform 1s ease;
+      pointer-events: none;
+    }
+
+    .bouquet-msg.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .bouquet-cta {
+      font-size: .78rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(212, 160, 83, .45);
+      animation: pulse 2.5s ease-in-out infinite, fadeUp 1s ease .8s both;
+    }
+
+    /* Petal fall */
+    .petal-fall {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10;
+      font-size: var(--ps);
+      animation: petalDrift var(--pd2) ease-in var(--pde) both;
+      top: -30px;
+      left: var(--px);
+    }
+
+    @keyframes petalDrift {
+      0% {
+        transform: translateY(-30px) rotate(0) translateX(0);
+        opacity: 0;
+      }
+
+      8% {
+        opacity: .85;
+      }
+
+      100% {
+        transform: translateY(112vh) rotate(var(--pr)) translateX(var(--psx));
+        opacity: 0;
+      }
+    }
+
+    /* ══ SCENE 5 — SCROLL LETTER ══ */
+    #s5 {
+      /* Warm dark bg — screen blend needs non-black to show the scroll fully */
+      background:
+        radial-gradient(ellipse at 50% 30%, #1a0c06 0%, #0d0704 50%, #060402 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Scroll — fills the full viewport height */
+    .scroll-outer {
+      position: relative;
+      z-index: 2;
+      /* width/height driven by the image inside */
+      display: block;
+      width: fit-content;
+      max-height: 96vh;
+      /* CRITICAL: clips text to the parchment image bounds */
+      overflow: hidden;
+      animation: scrollReveal 1.8s cubic-bezier(.25, .46, .45, .94) both;
+      transform-origin: top center;
+    }
+
+    @keyframes scrollReveal {
+      from {
+        transform: scaleY(.04);
+        opacity: 0;
+      }
+
+      to {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+
+    /* Image: height fills viewport, width is auto — container follows */
+    .scroll-photo-bg {
+      display: block;
+      max-height: 96vh;
+      width: auto;
+      max-width: 95vw;
+      pointer-events: none;
+      /* screen blend: black pixels in image become invisible,
+         parchment/gold pixels remain fully visible —
+         effectively removes the black background completely  */
+      mix-blend-mode: screen;
+      filter: brightness(1.0) contrast(1.08) saturate(1.05);
+    }
+
+    /* Text precisely inside the parchment paper area */
+    .scroll-letter-content {
+      position: absolute;
+      z-index: 2;
+      /*
+        Large insets to clear the wide wooden rollers on each side.
+        26% left/right keeps text entirely over parchment paper.
+      */
+      top: 16%;
+      bottom: 13%;
+      left: 26%;
+      right: 26%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(100, 60, 20, .3) transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      mix-blend-mode: normal;
+    }
+
+    .scroll-letter-content::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    .scroll-letter-content::-webkit-scrollbar-thumb {
+      background: rgb(255, 255, 255);
+    }
+
+    .letter-header {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.15rem, 1rem + 1.2vw, 1.7rem);
+      font-style: italic;
+      font-weight: 600;
+      color: #3a1205;
+      text-align: center;
+      margin-bottom: 10px;
+      text-shadow: 0 1px 0 rgba(255, 220, 150, .4), 0 2px 6px rgba(0, 0, 0, .18);
+      width: 100%;
+    }
+
+    .letter-header::after {
+      content: '';
+      display: block;
+      width: 70%;
+      height: 1px;
+      margin: 7px auto 0;
+      background: linear-gradient(to right, transparent, #b07020, transparent);
+    }
+
+    .letter-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1rem, 0.82rem + 0.8vw, 1.22rem);
+      font-style: italic;
+      font-weight: 700;
+      line-height: 1.9;
+      color: #cc0022;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 1px 4px rgba(180, 0, 20, .25);
+      width: 100%;
+    }
+
+    .letter-body p {
+      margin-bottom: .9em;
+    }
+
+    .letter-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* display:inline preserves whitespace between words correctly */
+    .word {
+      display: inline;
+      opacity: 0;
+      /* can't use translateY on inline — animate with opacity + clip */
+      animation: wordIn .38s ease both;
+    }
+
+    @keyframes wordIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .letter-sig {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(1.1rem, .95rem + 1vw, 1.55rem);
+      color: #4a1208;
+      text-align: center;
+      margin-top: 14px;
+      opacity: 0;
+      text-shadow: 0 1px 3px rgba(255, 200, 120, .3);
+      animation: fadeUp 1.5s ease 4.5s both;
+      width: 100%;
+    }
+
+    .letter-outro {
+      text-align: center;
+      margin-top: 10px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(.88rem, .75rem + .6vw, 1.05rem);
+      color: rgba(74, 34, 8, .6);
+      opacity: 0;
+      animation: fadeUp 1.5s ease 6s both;
+      width: 100%;
+    }
+
+    /* ══ SHARED ══ */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: .42;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* Progress dots */
+    .dots {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 200;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(242, 167, 184, .18);
+      transition: background .5s, transform .3s;
+    }
+
+    .dot.on {
+      background: rgba(242, 167, 184, .8);
+      transform: scale(1.4);
+    }
+
+    /* Transition veil */
+    #veil {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .95s ease;
+    }
+
+    #veil.fade {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* Music btn */
+    #music-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 300;
+      background: rgba(255, 255, 255, .06);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: rgba(255, 255, 255, .55);
+      transition: background .3s, color .3s;
+    }
+
+    #music-btn:hover {
+      background: rgba(255, 255, 255, .12);
+      color: #fff;
+    }
+
+    @media (max-width: 480px) {
+      .scroll-letter-content {
+        top: 15%;
+        bottom: 12%;
+        left: 24%;
+        right: 24%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <button id="music-btn" title="Toggle music">♪</button>
+  <div id="veil"></div>
+  <div class="dots">
+    <div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+    <div class="dot" id="d4"></div>
+    <div class="dot" id="d5"></div>
+  </div>
+
+  <!-- ╔══════════════ SCENE 1 — INTRO ══════════════╗ -->
+  <section class="scene active" id="s1">
+    <div class="glow-orb"
+      style="width:320px;height:320px;top:8%;left:-6%;background:radial-gradient(circle,rgba(192,67,90,.2),transparent 70%);--od:14s;--ode:-3s;--ox1:30px;--oy1:-18px;--ox2:-14px;--oy2:22px;">
+    </div>
+    <div class="glow-orb"
+      style="width:270px;height:270px;bottom:4%;right:-4%;background:radial-gradient(circle,rgba(212,160,83,.15),transparent 70%);--od:18s;--ode:-8s;--ox1:-22px;--oy1:16px;--ox2:18px;--oy2:-28px;">
+    </div>
+    <div class="particle-canvas" id="pc1"></div>
+    <div class="intro-wrap">
+      <p class="intro-tagline">My Beautiful Angel</p>
+      <h1 class="intro-title">"I made something for you ❤️<br>Because the last few days....<br>I didn’t make you feel as
+        important as you are.
+      </h1>
+      <p class="intro-sub">Take your time. Each moment here is yours.</p>
+      <button class="intro-cta" id="s1-cta">Begin &nbsp;→</button>
+    </div>
+  </section>
+
+  <!-- ╔══════════════ SCENE 2 — GIFT BOX ══════════════╗ -->
+  <section class="scene" id="s2">
+    <div class="glow-orb"
+      style="width:420px;height:420px;top:28%;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(192,67,90,.1),transparent 70%);--od:10s;--ode:0s;--ox1:0px;--oy1:-14px;--ox2:0px;--oy2:10px;">
+    </div>
+    <div class="gift-scene-wrap">
+      <p class="gift-hint-top">"I wrapped this with more love<br>than I've shown lately."</p>
+      <div class="gift-outer" id="gift-outer" onclick="openGift()">
+        <div class="gift-box">
+          <div class="box-glow" id="box-glow"></div>
+          <div class="box-body">
+            <div class="box-ribbon-v"></div>
+          </div>
+          <div class="box-lid" id="box-lid">
+            <div class="box-ribbon-h"></div>
+            <div class="bow" id="bow">
+              <div class="bow-left"></div>
+              <div class="bow-right"></div>
+              <div class="bow-center"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="gift-hint-bottom" id="gift-hint">tap to open</p>
+    </div>
+  </section>
+
+  <!-- ╔══════════════ SCENE 3 — CHOCOLATES ══════════════╗ -->
+  <section class="scene" id="s3">
+    <div class="choc-scene-wrap">
+      <p class="choc-title">Each one holds a little piece of what I feel…</p>
+
+      <div class="choc-photo-frame">
+        <!-- Photorealistic chocolate image -->
+        <img class="choc-bg-img" src="chocolates.png" alt="Artisan chocolates" draggable="false" />
+        <!-- Invisible click zones mapped over each chocolate cell -->
+        <div class="choc-zones" id="choc-zones">
+          <div class="choc-zone" data-i="0" onclick="eatChoc(this)">
+            <div class="choc-cover"></div>
+          </div>
+          <div class="choc-zone" data-i="1" onclick="eatChoc(this)">
+            <div class="choc-cover"></div>
+          </div>
+          <div class="choc-zone" data-i="2" onclick="eatChoc(this)">
+            <div class="choc-cover"></div>
+          </div>
+          <div class="choc-zone" data-i="3" onclick="eatChoc(this)">
+            <div class="choc-cover"></div>
+          </div>
+          <div class="choc-zone" data-i="4" onclick="eatChoc(this)">
+            <div class="choc-cover"></div>
+          </div>
+          <div class="choc-zone" data-i="5" onclick="eatChoc(this)">
+            <div class="choc-cover"></div>
+          </div>
+          <div class="choc-zone" data-i="6" onclick="eatChoc(this)">
+            <div class="choc-cover"></div>
+          </div>
+          <div class="choc-zone" data-i="7" onclick="eatChoc(this)">
+            <div class="choc-cover"></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="choc-remaining" id="choc-remaining">8 left to taste</p>
+      <div class="choc-msg-overlay">
+        <p class="choc-msg" id="choc-msg"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ╔══════════════ SCENE 4 — BOUQUET ══════════════╗ -->
+  <section class="scene" id="s4">
+    <div class="bouquet-wrap" onclick="bouquetClick()">
+      <div class="bouquet-photo-wrap">
+        <img class="bouquet-img" src="bouquet.png" alt="Sunflower bouquet" draggable="false" />
+      </div>
+      <p class="bouquet-msg" id="bouquet-msg">"If I could… I'd give you these in real life too."</p>
+      <p class="bouquet-cta" id="bouquet-cta">tap the flowers</p>
+    </div>
+  </section>
+
+  <!-- ╔══════════════ SCENE 5 — SCROLL LETTER ══════════════╗ -->
+  <section class="scene" id="s5">
+    <div class="glow-orb"
+      style="width:280px;height:280px;top:-5%;left:12%;background:radial-gradient(circle,rgba(140,55,15,.2),transparent 70%);--od:15s;--ode:-5s;--ox1:18px;--oy1:12px;--ox2:-10px;--oy2:-14px;">
+    </div>
+    <div class="glow-orb"
+      style="width:220px;height:220px;bottom:4%;right:8%;background:radial-gradient(circle,rgba(192,67,90,.14),transparent 70%);--od:20s;--ode:-9s;--ox1:-12px;--oy1:18px;--ox2:10px;--oy2:-10px;">
+    </div>
+
+    <div class="scroll-outer">
+      <!-- Photorealistic scroll background image -->
+      <img class="scroll-photo-bg" src="scroll.png" alt="Parchment scroll" draggable="false" />
+      <!-- Letter text overlaid on the parchment -->
+      <div class="scroll-letter-content">
+        <h2 class="letter-header">A letter from my heart</h2>
+        <div class="letter-body">
+          <p id="lp1"></p>
+          <p id="lp2"></p>
+          <p id="lp3"></p>
+          <p id="lp4"></p>
+          <p id="lp5"></p>
+          <p id="lp6"></p>
+          <p id="lp7"></p>
+          <p id="lp8"></p>
+          <p id="lp9"></p>
+          <p id="lp10"></p>
+          <p id="lp11"></p>
+          <p id="lp12"></p>
+          <p id="lp13"></p>
+          <p id="lp14"></p>
+          <p id="lp15"></p>
+          <p id="lp16"></p>
+          <p id="lp17"></p>
+        </div>
+        <p class="letter-sig">— Always yours - A.S. </p>
+        <p class="letter-outro">"I'm still here… if you are."</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /* ─── WEB AUDIO AMBIENT (generative piano tones) ─── */
+    let audioCtx = null, musicPlaying = false, gainNode = null;
+    const musicBtn = document.getElementById('music-btn');
+
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      gainNode = audioCtx.createGain();
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.connect(audioCtx.destination);
+      startAmbient();
+    }
+
+    const seq = [261.63, 329.63, 392, 440, 392, 329.63, 261.63, 293.66, 349.23, 392, 349.23, 293.66];
+    let seqIdx = 0;
+
+    function startAmbient() {
+      musicPlaying = true;
+      musicBtn.textContent = '♫';
+      gainNode.gain.linearRampToValueAtTime(0.45, audioCtx.currentTime + 2.5);
+      playAmbientNote();
+    }
+
+    function playAmbientNote() {
+      if (!musicPlaying || !audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const env = audioCtx.createGain();
+      osc.connect(env); env.connect(gainNode);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(seq[seqIdx % seq.length], audioCtx.currentTime);
+      osc.detune.setValueAtTime(Math.random() * 6 - 3, audioCtx.currentTime);
+      env.gain.setValueAtTime(0, audioCtx.currentTime);
+      env.gain.linearRampToValueAtTime(0.09, audioCtx.currentTime + 0.3);
+      env.gain.linearRampToValueAtTime(0.055, audioCtx.currentTime + 1.6);
+      env.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 3);
+      osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 3);
+      seqIdx++;
+      setTimeout(playAmbientNote, 1500 + Math.random() * 900);
+    }
+
+    musicBtn.addEventListener('click', () => {
+      if (!audioCtx) { initAudio(); return; }
+      if (musicPlaying) {
+        musicPlaying = false;
+        musicBtn.textContent = '♪';
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.2);
+      } else {
+        gainNode.gain.linearRampToValueAtTime(0.45, audioCtx.currentTime + 1.5);
+        startAmbient();
+      }
+    });
+
+    /* ─── SFX ─── */
+    function playSfx(type) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const env = audioCtx.createGain();
+      osc.connect(env); env.connect(audioCtx.destination);
+
+      if (type === 'unwrap') {
+        const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.45, audioCtx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * .04;
+        const src = audioCtx.createBufferSource();
+        const flt = audioCtx.createBiquadFilter();
+        flt.type = 'bandpass'; flt.frequency.value = 800; flt.Q.value = 0.4;
+        src.buffer = buf;
+        const eg = audioCtx.createGain();
+        src.connect(flt); flt.connect(eg); eg.connect(audioCtx.destination);
+        eg.gain.setValueAtTime(0.55, audioCtx.currentTime);
+        eg.gain.linearRampToValueAtTime(0, audioCtx.currentTime + .4);
+        src.start(); src.stop(audioCtx.currentTime + .45);
+        return;
+      }
+      if (type === 'shimmer') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(1350, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(2300, audioCtx.currentTime + .32);
+        env.gain.setValueAtTime(0, audioCtx.currentTime);
+        env.gain.linearRampToValueAtTime(0.065, audioCtx.currentTime + .06);
+        env.gain.linearRampToValueAtTime(0, audioCtx.currentTime + .52);
+        osc.start(); osc.stop(audioCtx.currentTime + .52); return;
+      }
+      if (type === 'choc') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(280, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(160, audioCtx.currentTime + .18);
+        env.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        env.gain.linearRampToValueAtTime(0, audioCtx.currentTime + .2);
+        osc.start(); osc.stop(audioCtx.currentTime + .2); return;
+      }
+      if (type === 'petal') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(540, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(280, audioCtx.currentTime + .32);
+        env.gain.setValueAtTime(0.035, audioCtx.currentTime);
+        env.gain.linearRampToValueAtTime(0, audioCtx.currentTime + .38);
+        osc.start(); osc.stop(audioCtx.currentTime + .38); return;
+      }
+    }
+
+    /* ─── SCENE TRANSITIONS ─── */
+    let cur = 1;
+    const veil = document.getElementById('veil');
+    const dotEls = [null, 'd1', 'd2', 'd3', 'd4', 'd5'].map(id => id ? document.getElementById(id) : null);
+
+    function activateDot(n) {
+      dotEls.forEach((d, i) => { if (d) d.classList.toggle('on', i === n); });
+    }
+    activateDot(1);
+
+    function goTo(n) {
+      if (n === cur) return;
+      veil.classList.add('fade');
+      setTimeout(() => {
+        document.getElementById('s' + cur).classList.remove('active');
+        cur = n;
+        document.getElementById('s' + cur).classList.add('active');
+        activateDot(n);
+        veil.classList.remove('fade');
+        if (n === 3) initChoCo();
+        if (n === 5) initLetter();
+      }, 950);
+    }
+
+    /* ─── SCENE 1 — PARTICLES ─── */
+    (function () {
+      const c = document.getElementById('pc1');
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div'); p.className = 'part';
+        const sz = 3 + Math.random() * 9;
+        Object.assign(p.style, {
+          width: sz + 'px', height: sz + 'px',
+          top: Math.random() * 100 + '%', left: Math.random() * 100 + '%',
+          '--pd': (7 + Math.random() * 11) + 's', '--delay': -(Math.random() * 10) + 's',
+          '--ty': -(20 + Math.random() * 45) + 'px',
+          '--bo': .04 + Math.random() * .14, '--po': .18 + Math.random() * .32,
+        });
+        c.appendChild(p);
+      }
+    })();
+
+    document.getElementById('s1-cta').addEventListener('click', () => { initAudio(); goTo(2); });
+
+    /* ─── SCENE 2 — GIFT BOX ─── */
+    let giftOpened = false;
+    function openGift() {
+      if (giftOpened) return;
+      giftOpened = true;
+      initAudio(); playSfx('unwrap');
+      document.getElementById('bow').classList.add('open');
+      setTimeout(() => {
+        document.getElementById('box-lid').classList.add('open');
+        document.getElementById('box-glow').classList.add('lit');
+        playSfx('shimmer'); spawnShimmer();
+      }, 750);
+      setTimeout(() => { document.getElementById('gift-hint').style.opacity = '0'; }, 200);
+      setTimeout(() => goTo(3), 3000);
+    }
+
+    function spawnShimmer() {
+      const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+      const syms = ['✦', '✧', '✵', '⋆', '＊', '⁎'];
+      for (let i = 0; i < 20; i++) {
+        const el = document.createElement('div'); el.className = 'shimmer-star';
+        const ang = (Math.PI * 2 / 20) * i, d = 65 + Math.random() * 110;
+        Object.assign(el.style, {
+          left: cx + 'px', top: cy + 'px',
+          '--ss-size': (9 + Math.random() * 14) + 'px',
+          '--ss-dur': (.65 + Math.random() * .65) + 's',
+          '--ssx': Math.cos(ang) * d + 'px',
+          '--ssy': Math.sin(ang) * d + 'px',
+          color: ['#f2a7b8', '#d4a053', '#ffe8a0', '#e05070'][Math.floor(Math.random() * 4)],
+        });
+        el.textContent = syms[Math.floor(Math.random() * syms.length)];
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1600);
+      }
+    }
+
+    /* ─── SCENE 3 — CHOCOLATES ─── */
+    const chocMessages = [
+      "You’re so easy to love, I just didn’t show it enough these past few days.",
+      "You deserve attention that feels natural… not something you have to miss.",
+      "You’re not someone I should ever make feel distant… not you.",
+      "You have this way of caring… and I should’ve matched that better.",
+      "I like you more than I show sometimes… and that’s something I need to fix.",
+      "I don’t want to lose what we have… not like this.",
+      "You matter to me in ways I haven’t been expressing properly.",
+      "I love you, Always you."
+    ];
+    let chocLeft = 8, chocTimer = null, chocReady = false;
+
+    function initChoCo() {
+      if (chocReady) return;
+      chocReady = true;
+      chocLeft = 8;
+      document.getElementById('choc-remaining').textContent = '8 left to taste';
+    }
+
+    function eatChoc(el) {
+      if (el.classList.contains('eaten')) return;
+      initAudio(); playSfx('choc');
+      el.classList.add('eaten');
+      chocLeft--;
+
+      // Message
+      const msgEl = document.getElementById('choc-msg');
+      if (chocTimer) clearTimeout(chocTimer);
+      msgEl.classList.remove('visible');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        msgEl.textContent = chocMessages[parseInt(el.dataset.i)];
+        msgEl.classList.add('visible');
+        chocTimer = setTimeout(() => msgEl.classList.remove('visible'), 2900);
+      }));
+
+      const remEl = document.getElementById('choc-remaining');
+      if (chocLeft > 0) {
+        remEl.textContent = chocLeft + ' left to taste';
+      } else {
+        remEl.textContent = 'Now for the flowers…';
+        setTimeout(() => goTo(4), 2600);
+      }
+    }
+
+    /* ─── SCENE 4 — BOUQUET ─── */
+    let bouqClicked = false;
+    function bouquetClick() {
+      initAudio(); playSfx('petal');
+      if (!bouqClicked) {
+        bouqClicked = true;
+        document.getElementById('bouquet-msg').classList.add('visible');
+        document.getElementById('bouquet-cta').style.opacity = '0';
+        spawnPetals();
+        setTimeout(() => goTo(5), 3800);
+      }
+    }
+
+    function spawnPetals() {
+      const pets = ['🌸', '🌻', '🌼', '💛'];
+      for (let i = 0; i < 24; i++) {
+        const p = document.createElement('div'); p.className = 'petal-fall';
+        const sz = 12 + Math.random() * 18;
+        Object.assign(p.style, {
+          '--ps': sz + 'px', '--pd2': (2.8 + Math.random() * 3.2) + 's',
+          '--pde': (Math.random() * 1.8) + 's',
+          '--px': (4 + Math.random() * 92) + '%',
+          '--pr': (Math.random() * 720 - 360) + 'deg',
+          '--psx': (Math.random() * 90 - 45) + 'px',
+        });
+        p.textContent = pets[Math.floor(Math.random() * pets.length)];
+        document.getElementById('s4').appendChild(p);
+        setTimeout(() => p.remove(), 7000);
+      }
+    }
+
+    /* ─── SCENE 5 — LETTER ─── */
+    const letterParagraphs = [
+      "I know the last few days haven’t felt the same… and that’s on me.",
+      "I’ve been busy with my studies, and my exams are coming up… but that’s not an excuse for how I made you feel.",
+      "I should’ve still shown up for you properly. Even if I didn’t have a lot of time, I had enough to make you feel included… and I didn’t do that.",
+      "You didn’t do anything wrong. I just didn’t handle things the way I should have.",
+      "And about my ankle… I should’ve told you.",
+      "Not because it was something serious… but because you’re someone I should share things with.",
+      "I didn’t think in that moment… and I get why that hurt you.",
+      "It probably felt like I didn’t consider you… like you weren’t part of what was going on with me… and I’m really sorry for that.",
+      "That’s not what you are to me.",
+      "You matter to me. More than I’ve been showing these past few days.",
+      "I don’t want you to feel like you come second to everything else in my life… especially not something like this.",
+      "I know I can do better with you. And I want to—consistently, not just when I realize I messed up.",
+      "Also… I think I owe you a little extra patience, attention, and a lot of listening after this 😅",
+      "(and yes, I know I’ve earned a few complaints… I’ll take them properly this time).",
+      "I’m still the same person who likes talking to you more than anything else… I just need to act like it more often.",
+      "I’m really sorry.",
+      "And hey… don’t go too far, okay? I’m kind of attached to you."
+    ];
+    let letterDone = false;
+
+    function initLetter() {
+      if (letterDone) return;
+      letterDone = true;
+      letterParagraphs.forEach((text, pi) => {
+        const el = document.getElementById('lp' + (pi + 1));
+        if (!el) return;
+        el.innerHTML = '';
+        text.split(' ').forEach((w, wi) => {
+          const s = document.createElement('span'); s.className = 'word';
+          s.textContent = w + ' ';
+          s.style.animationDelay = (pi * 1.1 + wi * 0.075 + 0.8) + 's';
+          el.appendChild(s);
+        });
+      });
+    }
+  </script>
+</body>
+
+</html>
